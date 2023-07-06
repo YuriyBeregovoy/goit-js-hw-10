@@ -2,6 +2,7 @@ import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
 
 function populateBreedSelect(breeds) {
   const breedSelect = document.querySelector('.breed-select');
+  breedSelect.style.marginBottom = '20px';
 
   breeds.forEach(breed => {
     const optionHTML = `<option value="${breed.id}">${breed.name}</option>`;
@@ -13,43 +14,62 @@ function displayCatInfo(cat) {
   const catInfoContainer = document.querySelector('.cat-info');
   catInfoContainer.innerHTML = '';
 
-  const img = document.createElement('img');
-  img.src = cat[0].url;
+  const html = `
+    <img src="${cat[0].url}" width = "400">
+    <p>Breed Name: ${cat[0].breeds[0].name}</p>
+    <p>Description: ${cat[0].breeds[0].description}</p>
+    <p>Temperament: ${cat[0].breeds[0].temperament}</p>
+  `;
 
-  const name = document.createElement('p');
-  name.textContent = `Breed Name: ${cat[0].breeds[0].name}`;
-
-  const description = document.createElement('p');
-  description.textContent = `Description: ${cat[0].breeds[0].description}`;
-
-  const temperament = document.createElement('p');
-  temperament.textContent = `Temperament: ${cat[0].breeds[0].temperament}`;
-
-  catInfoContainer.appendChild(img);
-  catInfoContainer.appendChild(name);
-  catInfoContainer.appendChild(description);
-  catInfoContainer.appendChild(temperament);
+  catInfoContainer.insertAdjacentHTML('beforeend', html);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function hideError() {
+  const error = document.querySelector('.error');
+  error.style.display = 'none';
+}
+
+function showError() {
+  const error = document.querySelector('.error');
+  error.style.display = 'block';
+}
+
+  const breedSelect = document.querySelector('.breed-select');
+  const catInfoContainer = document.querySelector('.cat-info');
+  const loader = document.querySelector('.loader');
+
+  hideError();
+  loader.style.display = 'none';
+
   fetchBreeds()
     .then(breeds => {
       populateBreedSelect(breeds);
+      breedSelect.classList.remove('hidden');
     })
     .catch(error => {
       console.error(error);
+      breedSelect.classList.remove('hidden');
+      showError();
     });
 
-  const breedSelect = document.querySelector('.breed-select');
   breedSelect.addEventListener('change', () => {
     const selectedBreedId = breedSelect.value;
+
+    catInfoContainer.classList.add('hidden');
+    loader.style.display = 'block';
+    hideError();
 
     fetchCatByBreed(selectedBreedId)
       .then(cat => {
         displayCatInfo(cat);
+        catInfoContainer.style.display = 'block';
       })
       .catch(error => {
         console.error(error);
+        catInfoContainer.style.display = 'block';
+        showError();
+      })
+      .finally(() => {
+        loader.style.display = 'none';
       });
   });
-});
