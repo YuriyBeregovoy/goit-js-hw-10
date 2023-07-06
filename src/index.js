@@ -8,6 +8,9 @@ function populateBreedSelect(breeds) {
     const optionHTML = `<option value="${breed.id}">${breed.name}</option>`;
     breedSelect.insertAdjacentHTML('beforeend', optionHTML);
   });
+  new SlimSelect({
+  select: breedSelect,
+});
 }
 
 function displayCatInfo(cat) {
@@ -38,6 +41,8 @@ function showError() {
   const catInfoContainer = document.querySelector('.cat-info');
   const loader = document.querySelector('.loader');
 
+
+  
   hideError();
   loader.style.display = 'none';
 
