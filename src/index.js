@@ -1,4 +1,5 @@
 import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
+import Notiflix from 'notiflix';
 
 function populateBreedSelect(breeds) {
   const breedSelect = document.querySelector('.breed-select');
@@ -10,7 +11,7 @@ function populateBreedSelect(breeds) {
   });
   new SlimSelect({
     select: breedSelect,
-    });
+  });
 }
 
 function displayCatInfo(cat) {
@@ -18,7 +19,7 @@ function displayCatInfo(cat) {
   catInfoContainer.innerHTML = '';
 
   const html = `
-    <img src="${cat[0].url}" width = "400">
+    <img src="${cat[0].url}" width="400">
     <p>Breed Name: ${cat[0].breeds[0].name}</p>
     <p>Description: ${cat[0].breeds[0].description}</p>
     <p>Temperament: ${cat[0].breeds[0].temperament}</p>
@@ -27,54 +28,41 @@ function displayCatInfo(cat) {
   catInfoContainer.insertAdjacentHTML('beforeend', html);
 }
 
-function hideError() {
-  const error = document.querySelector('.error');
-  error.style.display = 'none';
-}
+const breedSelect = document.querySelector('.breed-select');
+const catInfoContainer = document.querySelector('.cat-info');
+const loader = document.querySelector('.loader');
+catInfoContainer.style.width = '400px';
 
-function showError() {
-  const error = document.querySelector('.error');
-  error.style.display = 'block';
-}
+loader.style.display = 'none';
 
-  const breedSelect = document.querySelector('.breed-select');
-  const catInfoContainer = document.querySelector('.cat-info');
-  const loader = document.querySelector('.loader');
-  catInfoContainer.style.width = '400px';
+fetchBreeds()
+  .then(breeds => {
+    populateBreedSelect(breeds);
+    breedSelect.classList.remove('hidden');
+  })
+  .catch(error => {
+    console.error(error);
+    breedSelect.classList.remove('hidden');
+    Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page!');
+  });
 
-  
-  hideError();
-  loader.style.display = 'none';
+breedSelect.addEventListener('change', () => {
+  const selectedBreedId = breedSelect.value;
 
-  fetchBreeds()
-    .then(breeds => {
-      populateBreedSelect(breeds);
-      breedSelect.classList.remove('hidden');
+  catInfoContainer.classList.add('hidden');
+  loader.style.display = 'block';
+
+  fetchCatByBreed(selectedBreedId)
+    .then(cat => {
+      displayCatInfo(cat);
+      catInfoContainer.style.display = 'block';
     })
     .catch(error => {
       console.error(error);
-      breedSelect.classList.remove('hidden');
-      showError();
+      catInfoContainer.style.display = 'block';
+      Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page!');
+    })
+    .finally(() => {
+      loader.style.display = 'none';
     });
-
-  breedSelect.addEventListener('change', () => {
-    const selectedBreedId = breedSelect.value;
-
-    catInfoContainer.classList.add('hidden');
-    loader.style.display = 'block';
-    hideError();
-
-    fetchCatByBreed(selectedBreedId)
-      .then(cat => {
-        displayCatInfo(cat);
-        catInfoContainer.style.display = 'block';
-      })
-      .catch(error => {
-        console.error(error);
-        catInfoContainer.style.display = 'block';
-        showError();
-      })
-      .finally(() => {
-        loader.style.display = 'none';
-      });
-  });
+});
