@@ -2,15 +2,15 @@ import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
 
 function populateBreedSelect(breeds) {
   const breedSelect = document.querySelector('.breed-select');
-  breedSelect.style.marginBottom = '20px';
+  breedSelect.style.width = '400px';
 
   breeds.forEach(breed => {
     const optionHTML = `<option value="${breed.id}">${breed.name}</option>`;
     breedSelect.insertAdjacentHTML('beforeend', optionHTML);
   });
   new SlimSelect({
-  select: breedSelect,
-});
+    select: breedSelect,
+    });
 }
 
 function displayCatInfo(cat) {
@@ -40,7 +40,7 @@ function showError() {
   const breedSelect = document.querySelector('.breed-select');
   const catInfoContainer = document.querySelector('.cat-info');
   const loader = document.querySelector('.loader');
-
+  catInfoContainer.style.width = '400px';
 
   
   hideError();
